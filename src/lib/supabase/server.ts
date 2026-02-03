@@ -7,7 +7,7 @@ export function createServerSupabaseClient() {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       async accessToken() {
-        return (await auth()).getToken();
+        return (await auth()).getToken({ template: "supabase" });
       },
     },
   );

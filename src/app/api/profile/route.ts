@@ -1,14 +1,39 @@
 import { z } from "zod";
 import { NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
-import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { logSecurity } from "@/lib/logging";
+
+const BIRTHDAY_REGEX = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 
 const BodySchema = z.object({
-    first_name: z.string().nullable().optional(),
-    last_name: z.string().nullable().optional(),
-    avatar_url: z.string().nullable().optional(),
-    bio: z.string().nullable().optional(),
-    birthday: z.string().optional(), // YYYY-MM-DD or empty string to remove
+    first_name: z.string().max(100).nullable().optional(),
+    last_name: z.string().max(100).nullable().optional(),
+    avatar_url: z
+        .string()
+        .max(2048)
+        .nullable()
+        .optional()
+        .refine(
+            (val) => {
+                if (!val) return true;
+                try {
+                    const url = new URL(val);
+                    const supabaseHost = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).host;
+                    return url.host === supabaseHost;
+                } catch {
+                    return false;
+                }
+            },
+            { message: "Avatar URL must point to a valid storage domain" },
+        ),
+    bio: z.string().max(500).nullable().optional(),
+    birthday: z
+        .string()
+        .optional()
+        .refine((val) => !val || BIRTHDAY_REGEX.test(val), {
+            message: "Birthday must be in YYYY-MM-DD format",
+        }),
 });
 
 
@@ -25,7 +50,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const supabase = createAdminSupabaseClient();
+    const supabase = createServerSupabaseClient();
 
     // fetch existing preferences to avoid clobbering them
     const { data: existing, error: fetchError } = await supabase
@@ -35,8 +60,8 @@ export async function POST(req: Request) {
         .single();
 
     if (fetchError && fetchError.code !== "PGRST116") {
-        // PGRST116: no rows found (single() with no rows). We'll treat as empty.
-        return NextResponse.json({ error: fetchError.message }, { status: 500 });
+        logSecurity({ level: "error", event: "profile_fetch_failed", clerkId: user.id, detail: fetchError.message });
+        return NextResponse.json({ error: "Failed to load profile" }, { status: 500 });
     }
 
     const oldPrefs = existing?.preferences ?? {};
@@ -65,7 +90,8 @@ export async function POST(req: Request) {
     });
 
     if (upsertError) {
-        return NextResponse.json({ error: upsertError.message }, { status: 500 });
+        logSecurity({ level: "error", event: "profile_upsert_failed", clerkId: user.id, detail: upsertError.message });
+        return NextResponse.json({ error: "Failed to save profile" }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
@@ -77,7 +103,7 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const supabase = createAdminSupabaseClient();
+    const supabase = createServerSupabaseClient();
     const { data, error } = await supabase
         .from("users")
         .select("first_name,last_name,avatar_url,bio,preferences,updated_at")
@@ -85,7 +111,8 @@ export async function GET(req: Request) {
         .single();
 
     if (error && error.code !== "PGRST116") {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        logSecurity({ level: "error", event: "profile_get_failed", clerkId: user.id, detail: error.message });
+        return NextResponse.json({ error: "Failed to load profile" }, { status: 500 });
     }
 
     // Build ETag from updated_at (or a fallback for new/missing rows)

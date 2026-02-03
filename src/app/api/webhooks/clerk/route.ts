@@ -2,6 +2,7 @@ import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { logSecurity } from "@/lib/logging";
 
 interface ClerkUserEvent {
   data: {
@@ -17,8 +18,9 @@ interface ClerkUserEvent {
 export async function POST(req: Request) {
   const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
   if (!webhookSecret) {
+    logSecurity({ level: "error", event: "webhook_secret_missing" });
     return NextResponse.json(
-      { error: "CLERK_WEBHOOK_SECRET is not set" },
+      { error: "Webhook processing failed" },
       { status: 500 },
     );
   }
@@ -75,7 +77,8 @@ export async function POST(req: Request) {
       );
 
       if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        logSecurity({ level: "error", event: "webhook_user_upsert_failed", clerkId: id, detail: error.message });
+        return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
       }
       break;
     }
@@ -88,7 +91,8 @@ export async function POST(req: Request) {
         .eq("clerk_id", id);
 
       if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        logSecurity({ level: "error", event: "webhook_user_delete_failed", clerkId: id, detail: error.message });
+        return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
       }
       break;
     }
