@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
-@theme inline {
+/* Theme variables are controlled by the html.dark / html.light classes */
+html.dark {
   --color-background: #050505;
   --color-foreground: #ededed;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html.light {
+  --color-background: #ffffff;
+  --color-foreground: #0f172a;
+  /* slate-900 */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

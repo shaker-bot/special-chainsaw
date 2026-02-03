@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ToastProvider } from "./components/Toast";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,14 +27,16 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider appearance={{ baseTheme: dark }}>
-      <html lang="en" className="dark">
+      <html lang="en">
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <div className="bg-orbs">
             <div className="bg-orb-teal" />
           </div>
-          <div className="relative z-10">{children}</div>
+          <div className="relative z-10">
+            <ToastProvider>{children}</ToastProvider>
+          </div>
         </body>
       </html>
     </ClerkProvider>
