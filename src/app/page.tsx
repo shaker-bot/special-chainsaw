@@ -26,7 +26,7 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <main className="flex w-full max-w-lg flex-col items-center gap-8 rounded-2xl border border-white/10 bg-white/5 p-12 shadow-2xl backdrop-blur-xl">
+      <main className="flex w-full max-w-lg flex-col items-center gap-8 rounded-2xl border border-edge bg-surface p-12 shadow-2xl backdrop-blur-xl">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center gap-3">
             {avatar ? (
@@ -38,11 +38,11 @@ export default async function Home() {
                 className="h-12 w-12 rounded-full object-cover"
               />
             ) : (
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/6 text-sm text-white">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-alt text-sm text-on-surface-dim">
                 {displayName.charAt(0).toUpperCase()}
               </div>
             )}
-            <h1 className="text-2xl font-semibold tracking-tight text-white">
+            <h1 className="text-2xl font-semibold tracking-tight text-on-surface">
               Hi, {displayName}
             </h1>
           </div>

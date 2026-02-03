@@ -149,15 +149,19 @@ export default function ProfileForm() {
     }
 
     return (
-        <div className="w-full rounded-md border border-white/6 bg-white/3 p-6">
-            <h2 className="mb-4 text-lg font-medium text-white">Profile</h2>
+        <div className="w-full rounded-xl border border-edge bg-surface p-8">
+            <h2 className="mb-6 text-lg font-medium text-on-surface">Profile</h2>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+                {/* Name fields */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
+                        <label className="mb-1.5 block text-sm font-medium text-on-surface-dim">
+                            First name
+                        </label>
                         <input
-                            className="rounded border border-white/10 bg-transparent px-3 py-2 text-white placeholder:text-zinc-400 w-full"
-                            placeholder="First name"
+                            className="w-full rounded-lg border border-field-edge bg-field px-3 py-2.5 text-on-surface placeholder:text-on-surface-faint"
+                            placeholder="Enter first name"
                             {...register("first_name")}
                         />
                         {errors.first_name && (
@@ -168,9 +172,12 @@ export default function ProfileForm() {
                     </div>
 
                     <div>
+                        <label className="mb-1.5 block text-sm font-medium text-on-surface-dim">
+                            Last name
+                        </label>
                         <input
-                            className="rounded border border-white/10 bg-transparent px-3 py-2 text-white placeholder:text-zinc-400 w-full"
-                            placeholder="Last name"
+                            className="w-full rounded-lg border border-field-edge bg-field px-3 py-2.5 text-on-surface placeholder:text-on-surface-faint"
+                            placeholder="Enter last name"
                             {...register("last_name")}
                         />
                         {errors.last_name && (
@@ -181,19 +188,23 @@ export default function ProfileForm() {
                     </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                    <div className="flex w-24 flex-col items-center gap-2">
+                {/* Avatar */}
+                <div>
+                    <label className="mb-1.5 block text-sm font-medium text-on-surface-dim">
+                        Avatar
+                    </label>
+                    <div className="flex items-center gap-4">
                         {watchAvatar && !avatarBroken ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                                 src={watchAvatar as string}
                                 alt="avatar preview"
-                                className="h-20 w-20 rounded-full object-cover"
+                                className="h-16 w-16 rounded-full object-cover"
                                 onError={() => setAvatarBroken(true)}
                                 onLoad={() => setAvatarBroken(false)}
                             />
                         ) : (
-                            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/6 text-white">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-alt text-on-surface-dim">
                                 <span className="text-sm">A</span>
                             </div>
                         )}
@@ -205,46 +216,54 @@ export default function ProfileForm() {
                             className="hidden"
                             onChange={handleAvatarUpload}
                         />
-                        <button
-                            type="button"
-                            disabled={uploading}
-                            className="text-xs text-zinc-400 hover:text-white transition disabled:opacity-50"
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            {uploading ? "Uploading..." : "Upload"}
-                        </button>
+                        <div className="flex flex-col gap-1">
+                            <button
+                                type="button"
+                                disabled={uploading}
+                                className="inline-flex items-center gap-2 rounded-lg border border-field-edge bg-btn px-3 py-1.5 text-sm text-on-surface transition hover:brightness-110 disabled:opacity-50"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                {uploading ? "Uploading..." : "Upload photo"}
+                            </button>
+                            <span className="text-xs text-on-surface-faint">
+                                JPG, PNG, WebP or GIF. Max 5 MB.
+                            </span>
+                        </div>
                     </div>
-
-                    <div className="flex-1">
-                        <input
-                            className="rounded border border-white/10 bg-transparent px-3 py-2 text-white placeholder:text-zinc-400 w-full"
-                            placeholder="Avatar URL"
-                            {...register("avatar_url")}
-                        />
-                        {errors.avatar_url && (
-                            <div className="mt-1 text-sm text-rose-400">
-                                {String(errors.avatar_url.message)}
-                            </div>
-                        )}
-
-                        <textarea
-                            rows={3}
-                            className="mt-3 rounded border border-white/10 bg-transparent px-3 py-2 text-white placeholder:text-zinc-400 w-full"
-                            placeholder="Bio"
-                            {...register("bio")}
-                        />
-                        {errors.bio && (
-                            <div className="mt-1 text-sm text-rose-400">
-                                {String(errors.bio.message)}
-                            </div>
-                        )}
-                    </div>
+                    <input type="hidden" {...register("avatar_url")} />
+                    {errors.avatar_url && (
+                        <div className="mt-1 text-sm text-rose-400">
+                            {String(errors.avatar_url.message)}
+                        </div>
+                    )}
                 </div>
 
+                {/* Bio */}
                 <div>
+                    <label className="mb-1.5 block text-sm font-medium text-on-surface-dim">
+                        Bio
+                    </label>
+                    <textarea
+                        rows={3}
+                        className="w-full rounded-lg border border-field-edge bg-field px-3 py-2.5 text-on-surface placeholder:text-on-surface-faint"
+                        placeholder="Tell us about yourself"
+                        {...register("bio")}
+                    />
+                    {errors.bio && (
+                        <div className="mt-1 text-sm text-rose-400">
+                            {String(errors.bio.message)}
+                        </div>
+                    )}
+                </div>
+
+                {/* Birthday */}
+                <div>
+                    <label className="mb-1.5 block text-sm font-medium text-on-surface-dim">
+                        Birthday
+                    </label>
                     <input
                         type="date"
-                        className="w-max rounded border border-white/10 bg-transparent px-3 py-2 text-white placeholder:text-zinc-400"
+                        className="w-max rounded-lg border border-field-edge bg-field px-3 py-2.5 text-on-surface"
                         {...register("birthday")}
                     />
                     {errors.birthday && (
@@ -254,24 +273,25 @@ export default function ProfileForm() {
                     )}
                 </div>
 
-                <div className="mt-3 flex items-center gap-3">
+                {/* Submit */}
+                <div className="flex items-center gap-3 pt-2">
                     <button
                         type="submit"
                         disabled={isSubmitting || !isDirty}
-                        className="inline-flex items-center gap-2 rounded bg-white/6 px-3 py-2 text-sm text-white transition hover:brightness-110 disabled:opacity-50"
+                        className="inline-flex items-center gap-2 rounded-lg bg-btn px-4 py-2 text-sm font-medium text-on-surface transition hover:brightness-110 disabled:opacity-50"
                     >
-                        {isSubmitting ? "Saving..." : "Save"}
+                        {isSubmitting ? "Saving..." : "Save changes"}
                     </button>
 
-                    <span className={`text-sm text-emerald-400 transform transition-all duration-200 ${saved ? "scale-105 opacity-100" : "scale-90 opacity-0"}`} aria-hidden>
-                        Saved ✅
+                    <span className={`text-sm text-emerald-400 transition-all duration-200 ${saved ? "opacity-100" : "opacity-0"}`} aria-hidden>
+                        Saved
                     </span>
 
                     {serverError && (
                         <span className="text-sm text-rose-400">{serverError}</span>
                     )}
 
-                    {loading && <span className="text-sm text-zinc-400">Loading…</span>}
+                    {loading && <span className="text-sm text-on-surface-faint">Loading...</span>}
                 </div>
             </form>
 

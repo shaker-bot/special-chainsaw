@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 
-const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const BUCKET = "avatars";
 
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
     if (file.size > MAX_SIZE) {
         return NextResponse.json(
-            { error: "File must be under 2 MB" },
+            { error: "File must be under 5 MB" },
             { status: 400 }
         );
     }
